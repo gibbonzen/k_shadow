@@ -1,0 +1,9 @@
+{
+	"type": "Camera",
+	"name": "Night Cam", 
+	"status": "STOP",
+	"connection": {
+		"type": "CSI",
+		"properties": {}
+	}
+}

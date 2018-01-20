@@ -1,0 +1,12 @@
+{
+	"type": "Door",
+	"name": "Door", 
+	"status": "CLOSED",
+	"connection": {
+		"type": "GPIO",
+		"properties": {
+			"numero": 4,
+			"way": "OUT"
+		}
+	}
+}
