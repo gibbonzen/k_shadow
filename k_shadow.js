@@ -64,8 +64,8 @@ server.get('/door', (request, response) => {
 }());
 
 
-server.listen(config.port, config.hostname, () => 
-	LOG.log(LOG.LEVEL.INFO, `Server running at http://${config.hostname}:${config.port}`));
+server.listen(config.port, config.host, () => 
+	LOG.log(LOG.LEVEL.INFO, `Server running at http://${config.host}:${config.port}`));
 
 
 
