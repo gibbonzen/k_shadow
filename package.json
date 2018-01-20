@@ -1,0 +1,24 @@
+{
+  "name": "k_shadow",
+  "version": "1.0.0",
+  "description": "Gestion du poulailler à distance.",
+  "main": "k_shadow.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gibbonzen/k_shadow.git"
+  }
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "onoff": "^1.1.9",
+    "express": "^4.16.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "lesMarmottes",
+  "license": "ISC"
+}
