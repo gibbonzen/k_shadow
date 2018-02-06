@@ -6,13 +6,15 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/gibbonzen/k_shadow.git"
-  }
+  },
   "directories": {
     "lib": "lib"
   },
   "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
     "onoff": "^1.1.9",
-    "express": "^4.16.2"
+    "socket.io": "^2.0.4"
   },
   "devDependencies": {},
   "scripts": {

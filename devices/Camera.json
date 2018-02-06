@@ -1,9 +1,13 @@
 {
 	"type": "Camera",
-	"name": "Night Cam", 
-	"status": "STOP",
+	"name": "Camera", 
+	"status": "STOPPED",
 	"connection": {
-		"type": "CSI",
-		"properties": {}
+		"type": "PROCESS",
+		"properties": {
+			"launcher": "node",
+			"path": "/media/gibbon/Data/developpement/nodejs/stream/tmp",
+			"script": "file-rename.js"
+		}
 	}
 }
