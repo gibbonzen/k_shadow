@@ -78,12 +78,17 @@ app.get('/door', (request, response) => {
 const socketListener = new EventEmitter()
 var camera = getDevice("Camera")
 
+camera.on('start', () => {
+	LOG.device(camera, 'Start streaming.')
+	socketListener.emit('start')
+})
+
 camera.on('close', () => {
 	LOG.device(camera, 'Stop streaming.')
 	socketListener.emit('end')
 })
 camera.on('image', (strBuffer) => {
-	LOG.device(camera, 'New image send')
+	//LOG.device(camera, 'New image send')
 	socketListener.emit('newImage', strBuffer)
 })
 
@@ -94,7 +99,7 @@ app.get('/camera', (req, res) => {
 // route /camera/stream
 .get('/camera/stream', (req, res) => {
 	// launch and send camera stream
-	executeFor(camera, 'start', res)
+	detailFor(camera, res)
 })
 .post('/camera/stream', (req, res) => {
 	// start or stop the stream
@@ -125,10 +130,15 @@ server.listen(config.port, config.host, () =>
 
 // -----------------------------------------------
 
-const io = socket(server) 
-LOG.server('Socket open for stream.')
-io.on('connection', (socket) => {
+const io = socket(server)
+const streamNamespace = io.of('/stream')
+LOG.server('Stream socket in waiting for connect user.')
+streamNamespace.on('connect', (socket) => {
 	LOG.server('New client connected in stream')
+
+	socketListener.on('start', () => {
+		socket.emit('streamStart')
+	})	
 
 	socketListener.on('newImage', (imgBuffer) => {
 		socket.emit('newImage', imgBuffer)
@@ -140,8 +150,10 @@ io.on('connection', (socket) => {
 })
 
 function closeSocket() {
-	LOG.server('Stream socket close.')
-	io.emit('disconnect')
+	if(streamNamespace.connected.length == 0) {
+		LOG.server('Stream socket close.')
+		io.emit('disconnect')
+	}
 }
 
 // -----------------------------------------------
@@ -191,7 +203,7 @@ function executeFor(device, action, response) {
 
 	LOG.client(`execute action ${action} on ${device.type}`)
 	let executedAction = device.exec(action)
-	sendResponse(response, executedAction)
+	sendResponse(response, device.toString())
 	LOG.server(executedAction)
 }
 
