@@ -14,8 +14,8 @@ const app = express()
 const server = require('http').Server(app)
 const bodyParser = require('body-parser')
 
-const socket = require('socket.io')
-const EventEmitter = require('events').EventEmitter
+const io = require('socket.io-client')
+const EventEmitter = require('events')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
@@ -78,7 +78,7 @@ app.get('/door', (request, response) => {
 const socketListener = new EventEmitter()
 var camera = getDevice("Camera")
 
-camera.on('start', () => {
+/*camera.on('start', () => {
 	LOG.device(camera, 'Start streaming.')
 	socketListener.emit('start')
 })
@@ -86,10 +86,9 @@ camera.on('start', () => {
 camera.on('close', () => {
 	LOG.device(camera, 'Stop streaming.')
 	socketListener.emit('end')
-})
+})*/
 camera.on('image', (strBuffer) => {
-	//LOG.device(camera, 'New image send')
-	socketListener.emit('newImage', strBuffer)
+	socketListener.emit('image', strBuffer)
 })
 
 // route /camera return device details
@@ -104,15 +103,8 @@ app.get('/camera', (req, res) => {
 .post('/camera/stream', (req, res) => {
 	// start or stop the stream
 	let currentStatus = camera.status
-
 	let action = req.body.action
 	executeFor(camera, action, res)
-
-	if("stop" === action) {
-		if(currentStatus === camera.Status().STARTED) {
-			closeSocket()
-		}
-	}
 })
 
 // -----------------------------------------------
@@ -130,31 +122,14 @@ server.listen(config.port, config.host, () =>
 
 // -----------------------------------------------
 
-const io = socket(server)
-const streamNamespace = io.of('/stream')
-LOG.server('Stream socket in waiting for connect user.')
-streamNamespace.on('connect', (socket) => {
-	LOG.server('New client connected in stream')
+const socket = io(`http://${config.k_server.host}:${config.k_server.port}`)
+socket.emit('connection_client', { name: config.name, type: config.type })
 
-	socketListener.on('start', () => {
-		socket.emit('streamStart')
-	})	
-
-	socketListener.on('newImage', (imgBuffer) => {
-		socket.emit('newImage', imgBuffer)
-	})
-
-	socketListener.on('end', () => {
-		closeSocket()
-	})
+socketListener.on('image', (imgBuffer) => {
+	//LOG.device(camera, 'New image send')
+	socket.emit('image', imgBuffer)
 })
 
-function closeSocket() {
-	if(streamNamespace.connected.length == 0) {
-		LOG.server('Stream socket close.')
-		io.emit('disconnect')
-	}
-}
 
 // -----------------------------------------------
 

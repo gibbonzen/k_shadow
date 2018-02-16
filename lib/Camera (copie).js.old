@@ -6,7 +6,6 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const chokidar = require('chokidar')
-const PiCamera = require('./PiCamera')
 
 const Status = {
 	STOPPED: 0x00,
@@ -27,7 +26,6 @@ module.exports = class Camera extends Device {
 			"stop": this.stop
 		}
 
-		this.camera = null
 		this.fileWatcher = null
 	}
 
@@ -36,8 +34,8 @@ module.exports = class Camera extends Device {
 			return "Camera is already started."
 		}
 		else {
-			self._buildStreamArgs()
-			self.camera.takePicture(self.image)
+			let args = self._buildStreamArgs()
+			self.connection.spawn(args)
 			self.status = Status.STARTED
 			self._watch()
 			self.emit('start')
@@ -50,7 +48,7 @@ module.exports = class Camera extends Device {
 			return "Camera is already stopped."
 		}
 		else {
-			self.camera.stop()
+			self.connection.kill()
 			self.status = Status.STOPPED
 			self._unWatch()
 			return "Stop the camera."
@@ -60,17 +58,20 @@ module.exports = class Camera extends Device {
 	_buildStreamArgs() {
 		this.folder = this.options.directory
 		this.image = this.options.filename
-		this.camera = new PiCamera()
-		this.camera.nopreview()
-				.baseFolder(this.folder)
-				.thumb(this.options.thumb) 
-				.timeout(this.options.timeout) 
-				.timelapse(this.options.timelapse) 
-				.width(this.options.width)
-				.height(this.options.height)
-				.quality(this.options.quality)
-				.rotation(this.options.rotation)
-
+		let fullPathToImg = path.resolve(path.join(this.folder, this.image))
+	  	var args = [
+			'--output', fullPathToImg,
+			'--width', this.options.width,
+			'--height', this.options.height,
+			'--quality', this.options.quality,
+			'--thumb', this.options.thumb,
+			'--timeout', this.options.timeout,
+			'--timelapse', this.options.timelapse,
+			'--rotation', this.options.rotation,
+			'--nopreview',
+			'-bm'
+		]
+		return args;
 	}
 
 	_watch() {

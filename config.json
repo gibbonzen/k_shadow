@@ -1,4 +1,10 @@
 {
-	"host": "localhost",
-	"port": 3000
+	"name": "k_shadow",
+	"type": "poulailler",
+	"host": "192.168.0.20",
+	"port": 3000,
+	"k_server": {
+		"host": "192.168.0.88",
+		"port": 8080
+	}
 }

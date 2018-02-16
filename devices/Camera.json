@@ -5,9 +5,20 @@
 	"connection": {
 		"type": "PROCESS",
 		"properties": {
-			"launcher": "node",
-			"path": "/media/gibbon/Data/developpement/nodejs/stream/tmp",
-			"script": "file-rename.js"
+			"launcher": "",
+			"path": "/opt/vc/bin",
+			"script": "raspistill"
 		}
-	}
+	},
+    "options": {
+        "directory": "/home/pi/Images/tmp/",
+        "filename": "image.jpg",
+        "width": 720,
+        "height": 480,
+        "quality": 75,
+        "thumb": "none",
+        "timeout": 9999999,
+        "timelapse": 500,
+        "rotation": 180
+      }
 }
