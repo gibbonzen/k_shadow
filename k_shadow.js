@@ -78,15 +78,15 @@ app.get('/door', (request, response) => {
 const socketListener = new EventEmitter()
 var camera = getDevice("Camera")
 
-/*camera.on('start', () => {
+camera.on('start', () => {
 	LOG.device(camera, 'Start streaming.')
 	socketListener.emit('start')
 })
 
 camera.on('close', () => {
 	LOG.device(camera, 'Stop streaming.')
-	socketListener.emit('end')
-})*/
+	socketListener.emit('close')
+})
 camera.on('image', (strBuffer) => {
 	socketListener.emit('image', strBuffer)
 })
@@ -123,13 +123,31 @@ server.listen(config.port, config.host, () =>
 // -----------------------------------------------
 
 const socket = io(`http://${config.k_server.host}:${config.k_server.port}`)
-socket.emit('connection_client', { name: config.name, type: config.type })
 
+function identify(socket) {
+	socket.emit('connection_client', { name: config.name, type: config.type })
+}
+
+identify(socket)
+socket.on('reconnect', (num) => {
+	identify(socket)
+})
+
+socket.on('stream_command', cmd => {
+	let executedAction = camera.exec(cmd)
+	LOG.server(executedAction)
+})
+
+socketListener.on('start', () => {
+	socket.emit('start')
+})
 socketListener.on('image', (imgBuffer) => {
 	//LOG.device(camera, 'New image send')
 	socket.emit('image', imgBuffer)
 })
-
+socketListener.on('close', () => {
+	socket.emit('close')
+})
 
 // -----------------------------------------------
 
